@@ -45,27 +45,62 @@ Column {data-width=700}
 
 Column {data-width=350}
 -----------------------------------------------------------------------
-### Chart B
+### Chart B: Most popular Grade A Restaurants by Cuisine and Borough
 
-```{r}
-nyc_airbnb %>% 
-  count(neighbourhood) %>% 
-  mutate(neighbourhood = fct_reorder(neighbourhood, n)) %>% 
+```{r eval = FALSE}
+  rest_inspec %>% 
+  slice_sample(n = 1000) %>% 
+  drop_na(grade) %>% 
+  mutate(
+      grade = factor(grade, levels = c("A", "B", "C", "Z", "Not Yet Graded"))
+  ) %>% 
+  filter(
+    grade == "A"
+  ) %>%
+  group_by(grade, cuisine_description, boro) %>% 
+  summarize(
+    n_obs = n()) %>% 
+  mutate(
+    n_obs_perm = n_obs
+  ) %>% 
+  ungroup() %>% 
   plot_ly(
-    x = ~neighbourhood, y = ~n,
-    type = "bar")
+    x = ~boro, y = ~n_obs_perm, color = ~cuisine_description,
+    type = "scatter", mode = "markers",
+    alpha = .5, text = ~dba
+  )
 ```
 
+
+
+```{r}
+  rest_inspec %>% 
+  slice_sample(n = 1000) %>% 
+  drop_na(grade) %>% 
+  mutate(
+      grade = factor(grade, levels = c("A", "B", "C", "Z", "Not Yet Graded"))
+  ) %>% 
+  filter(
+    grade == "A"
+  ) %>%
+  group_by(grade, cuisine_description, boro) %>% 
+  summarize(
+    n_obs = n()) %>% 
+  mutate(
+    n_obs_perm = n_obs
+  ) %>% 
+  ungroup() %>% 
+  plot_ly(
+    x = ~boro, y = ~n_obs_perm, color = ~cuisine_description,
+    type = "scatter", mode = "markers",
+    alpha = .5
+  )
+```
 
 ### Chart C
 
 ```{r}
-ggp_scatterplot = 
-  nyc_airbnb %>% 
-  ggplot(aes(x = lat, y = long, color = price)) + 
-  geom_point()
 
-ggplotly(ggp_scatterplot)
 ```
 
 
