@@ -15,30 +15,28 @@ library(p8105.datasets)
 data("rest_inspec")
 ```
 
-Column {data-width=650}
+Column {data-width=700}
 -----------------------------------------------------------------------
 
-### Chart A: Violation and Grade Association in a given year
+### Chart A: How many "critical" violations have been amassed per grade?
 
-  plot_ly(
-    x = ~lat, y = ~long, color = ~price,
-    type = "scatter", mode = "markers",
-    alpha = .5, text = ~text_label)
-```{r, eval = FALSE}
-rest_inspec_1k = 
+
+```{r}
   rest_inspec %>% 
   slice_sample(n = 1000) %>% 
   drop_na(grade) %>% 
-  separate(grade_date, into = c("year", "month", "day"), sep = "-") %>% 
-  group_by(year, critical_flag) %>%
+  mutate(
+      grade = factor(grade, levels = c("A", "B", "C", "Z", "Not Yet Graded"))
+  ) %>% 
+  group_by(grade, critical_flag) %>%
   filter(
     critical_flag == "Critical"
   ) %>%
   summarize(
-    n_obs = n(critical_flag)
-  ) %>% 
+    n_obs = n()
+  ) %>%
   plot_ly(
-    x = ~year, y = ~n_obs, 
+    x = ~grade, y = ~n_obs, 
     type = "bar"
   )
   
