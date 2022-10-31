@@ -1,0 +1,79 @@
+---
+title: "Problem 2"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+
+```{r setup, include = FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(plotly)
+library(p8105.datasets)
+data("rest_inspec")
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A: Violation and Grade Association in a given year
+
+  plot_ly(
+    x = ~lat, y = ~long, color = ~price,
+    type = "scatter", mode = "markers",
+    alpha = .5, text = ~text_label)
+```{r, eval = FALSE}
+rest_inspec_1k = 
+  rest_inspec %>% 
+  slice_sample(n = 1000) %>% 
+  drop_na(grade) %>% 
+  separate(grade_date, into = c("year", "month", "day"), sep = "-") %>% 
+  group_by(year, critical_flag) %>%
+  filter(
+    critical_flag == "Critical"
+  ) %>%
+  summarize(
+    n_obs = n(critical_flag)
+  ) %>% 
+  plot_ly(
+    x = ~year, y = ~n_obs, 
+    type = "bar"
+  )
+  
+  
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+### Chart B
+
+```{r}
+nyc_airbnb %>% 
+  count(neighbourhood) %>% 
+  mutate(neighbourhood = fct_reorder(neighbourhood, n)) %>% 
+  plot_ly(
+    x = ~neighbourhood, y = ~n,
+    type = "bar")
+```
+
+
+### Chart C
+
+```{r}
+ggp_scatterplot = 
+  nyc_airbnb %>% 
+  ggplot(aes(x = lat, y = long, color = price)) + 
+  geom_point()
+
+ggplotly(ggp_scatterplot)
+```
+
+
+However, the website’s _site.yml file conflicts with the dashboard’s YAML header regarding the output format – and the website’s _site.yml “wins”. To address this issue, instead of knitting you can use this command to knit the dashboard.
+
+rmarkdown::render("dashboard_template.Rmd", output_format = "flexdashboard::flex_dashboard")
+This will create dashboard_template.html but not open it in RStudio’s Viewer pane; you can open the file in a browser instead. Alternatively, using RStudio’s Build pane to Build Website will produce the same results. To illustrate, we’ll put the dashboard we just created on a website for this topic.
+
+All of this YAML business is only an issue for dashboards embedded in websites; a standalone dashboard (in a non-website GH repo or R Project) can be knit using the same process as other .Rmd files.
